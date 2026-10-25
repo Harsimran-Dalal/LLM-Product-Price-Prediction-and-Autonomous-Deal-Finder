@@ -106,6 +106,31 @@ The final phase connects the price estimator to real deal feeds. The scanner sel
 
 **Error-reduction decisions:** multiple pricing signals, structured Pydantic outputs, product retrieval, explicit opportunity discounts, and persisted memory reduce dependence on one model response and prevent losing useful results between runs.
 
+## Key numbers and results
+
+The repository contains one explicitly recorded training run and several measurable runtime safeguards. Numbers below are reported values or implementation settings, not estimates.
+
+| Area | Metric or setting | Value | Why it matters |
+|---|---|---:|---|
+| Price model | Training epochs in the recorded redemption run | **5** | A fixed training budget makes the experiment repeatable. |
+| Price model | Final training loss | **0.2446** | Lower than the initial recorded training loss of **0.5463**. |
+| Price model | Final validation loss | **0.3944** | Lower than the initial recorded validation loss of **0.4324**. |
+| Price model | Final validation mean absolute error | **$53.15** | The recorded average absolute price error after epoch 5. |
+| Price model | Best recorded validation MAE | **$53.15** | The best value in the 5-epoch run. |
+| Data filtering | Accepted price range | **$0.50–$999.49** | Removes implausible and extreme price records before training. |
+| Data filtering | Minimum product text length | **600 characters** | Avoids training on descriptions with too little product information. |
+| Data preparation | Maximum text per source field | **3,000 characters** | Controls noisy input size before combining fields. |
+| Data preparation | Maximum combined text | **4,000 characters** | Controls token usage and model input variance. |
+| Deal scanning | RSS entries inspected per feed | **10** | Keeps each scan bounded and predictable. |
+| Deal selection | Deals requested from the scanner | **5** | Produces a focused shortlist for price estimation. |
+| Price ensemble | Frontier model contribution | **80%** | Gives the retrieval/frontier estimate the primary weight. |
+| Price ensemble | Specialist model contribution | **10%** | Adds an independent model signal. |
+| Price ensemble | Neural model contribution | **10%** | Adds a learned regression signal. |
+| Opportunity ranking | Application refresh interval | **300 seconds / 5 minutes** | Periodically checks for new opportunities. |
+| Visualization | Maximum vector-store points for the plot | **800** | Keeps the dashboard visualization responsive. |
+
+The evaluation framework reports **mean absolute error**, **mean squared error**, **R²**, and a **95% confidence interval** for future runs. The notebooks do not contain a complete comparable metric table for every model, so no additional model scores are claimed here.
+
 ## Quick start
 
 ### 1. Install
@@ -171,4 +196,3 @@ python -c "from price_is_right import App, DealAgentFramework; print(App.__name_
 **Product Price Prediction & Autonomous Deal Finder** — Built a staged Python ML and agentic system that cleans and preprocesses Amazon product metadata, trains and evaluates price estimators, combines neural/retrieval/LLM pricing signals, scans RSS deal feeds, ranks opportunities, persists results in ChromaDB/JSON, and serves a Gradio dashboard.
 
 **Technologies:** Python, PyTorch, scikit-learn, Pydantic, Hugging Face Datasets, LiteLLM, OpenAI-compatible APIs, ChromaDB, Gradio, Plotly, and uv.
-
